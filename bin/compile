@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# This buildpack can be used for executing custom commands on the build dyno.
+# All the commands put in run.sh will be run during the execution of the
+# 'compile' script. The working dir for the commands will be the root app dir.
+#
+# ---
+#
+# The 'compile' script is executed by the slug compiler with three arguments:
+#   1. build_dir: location of your app directory on the build dyno
+#   2. cache_dir: directory on the build dyno that persists between builds
+#   3. env_dir:   directory holding all the app's config vars as files
+#
+# More information here: https://devcenter.heroku.com/articles/buildpack-api
+#
+# Daniel Weibel <daniel.weibel@unifr.ch> March 2015
+#------------------------------------------------------------------------------#
+
+set -e
+
+cd "$1"
+echo "Sourcing run.sh" | sed 's/^/-----> /'
+source ./run.sh        | sed 's/^/       /'
+echo

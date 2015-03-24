@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Detects if the buildpack is applicable to the app at hand. The app must have
+# the file run.sh in its root directory.
+#
+# ---
+#
+# The 'detect' script is executed by the slug compiler with one argument:
+#   1. build_dir: location of your app directory on the build dyno
+#
+# If 'detect' exits with status code 0:
+#   stdout is inserted in "-----> <X> app detected" and 'compile' script is run
+# If 'detect' exits with status code != 0:
+#   the buildpack is not used
+#
+# More information here: https://devcenter.heroku.com/articles/buildpack-api
+#
+# Daniel Weibel <daniel.weibel@unifr.ch> March 2015
+#------------------------------------------------------------------------------#
+
+[[ ! -f "$1/run.sh" ]] &&  exit 1
+
+echo "Run"
