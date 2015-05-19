@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # This buildpack can be used for executing custom commands on the build dyno.
-# All the commands put in run.sh will be run during the execution of the
-# 'compile' script. The working dir for the commands will be the root app dir.
+# All the Bash commands in buildpack-run.sh will be run during the execution of
+# the 'compile' script. The working dir for the script will be the root app dir.
 #
 # ---
 #
@@ -19,6 +19,6 @@
 set -e
 
 cd "$1"
-echo "Sourcing run.sh" | sed 's/^/-----> /'
-source ./run.sh        | sed 's/^/       /'
+echo "Sourcing buildpack-run.sh"    | sed 's/^/-----> /'
+source ./buildpack-run.sh | sed 's/^/       /'
 echo
