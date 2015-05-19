@@ -26,7 +26,7 @@ echo 'echo "hello world"' >buildpack-run.sh
 heroku buildpack:set https://github.com/weibeld/heroku-buildpack-run.git
 ~~~
 
-On the next `git push heroku master`, the `heroku-buildpack-run' buildpack will be used.
+On the next `git push heroku master`, the `heroku-buildpack-run` buildpack will be used.
 
 For more information on how to use custom buildpacks, see <https://devcenter.heroku.com/articles/third-party-buildpacks#using-a-custom-buildpack>.
 

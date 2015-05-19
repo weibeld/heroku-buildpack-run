@@ -19,6 +19,6 @@
 set -e
 
 cd "$1"
-echo "Sourcing buildpack-run.sh"    | sed 's/^/-----> /'
-source ./buildpack-run.sh | sed 's/^/       /'
+echo "Sourcing buildpack-run.sh" | sed 's/^/-----> /'
+source ./buildpack-run.sh        | sed 's/^/       /'
 echo
