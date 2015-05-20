@@ -18,6 +18,6 @@
 # Daniel Weibel <daniel.weibel@unifr.ch> March 2015
 #------------------------------------------------------------------------------#
 
-[[ ! -f "$1/run.sh" ]] &&  exit 1
+[[ ! -f "$1/buildpack-run.sh" ]] &&  exit 1
 
 echo "Run"
