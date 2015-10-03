@@ -47,7 +47,7 @@ https://github.com/heroku/heroku-buildpack-ruby.git
 https://github.com/weibeld/heroku-buildpack-run.git
 EOF
 
-heroku buildpack:set https://github.com/ddollar/heroku-buildpack-multi.git
+heroku buildpacks:set https://github.com/ddollar/heroku-buildpack-multi.git
 ~~~
 
 On the next `git push heroku master`, all the buildpacks listed in `.buildpacks` will be used.
