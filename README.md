@@ -23,7 +23,7 @@ Simply do
 # Create file 'buildpack-run.sh' containing bash commands
 echo 'echo "hello world"' >buildpack-run.sh
 
-heroku buildpack:set https://github.com/weibeld/heroku-buildpack-run.git
+heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run.git
 ~~~
 
 On the next `git push heroku master`, the `heroku-buildpack-run` buildpack will be used.
