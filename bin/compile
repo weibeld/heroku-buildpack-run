@@ -25,5 +25,5 @@ set -o pipefail
 
 cd "$BUILD_DIR"
 echo "Sourcing buildpack-run.sh" | sed 's/^/-----> /'
-source ./buildpack-run.sh        | sed 's/^/       /'
+source ./buildpack-run.sh 2>&1   | sed 's/^/       /'
 echo
