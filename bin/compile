@@ -16,9 +16,14 @@
 # Daniel Weibel <daniel.weibel@unifr.ch> March 2015
 #------------------------------------------------------------------------------#
 
-set -e
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
 
-cd "$1"
+set -e
+set -o pipefail
+
+cd "$BUILD_DIR"
 echo "Sourcing buildpack-run.sh" | sed 's/^/-----> /'
 source ./buildpack-run.sh        | sed 's/^/       /'
 echo
