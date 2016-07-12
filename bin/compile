@@ -7,18 +7,21 @@
 # ---
 #
 # The 'compile' script is executed by the slug compiler with three arguments:
-#   1. build_dir: location of your app directory on the build dyno
-#   2. cache_dir: directory on the build dyno that persists between builds
-#   3. env_dir:   directory holding all the app's config vars as files
+#   $1: build_dir, location of your app directory on the build dyno
+#   $2: cache_dir, directory on the build dyno that persists between builds
+#   $3: env_dir, directory holding all the app's config vars as files
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
 # Daniel Weibel <daniel.weibel@unifr.ch> March 2015
 #------------------------------------------------------------------------------#
 
-set -e
+# Rename these variables for easier access in buildpack-run.sh
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
 
-cd "$1"
+cd "$BUILD_DIR"
+
 echo "Sourcing buildpack-run.sh" | sed 's/^/-----> /'
-source ./buildpack-run.sh        | sed 's/^/       /'
-echo
+source ./buildpack-run.sh
