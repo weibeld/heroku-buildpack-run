@@ -9,7 +9,13 @@ Description
 
 This buildpack allows to execute arbitrary commands on the build dyno during the build process.
 
-To use it, you have to create the file `buildpack-run.sh` in the root directory of your app. This file can contain arbitrary Bash commands. If you then activate the buildpack (see below), `buildpack-run.sh` will be sourced during the build. The working directory will be the root directory of your application.
+Just create the file `buildpack-run.sh` in the root directory of your application and write in this file the commands that you want to execute. This file is then *sourced* by the `compile` script of this buildpack. That is, the commands in `buildpack-run.sh` are executed on the build dyno as they would be part of the `compile` script.
+
+Available build-specific variables are `BUILD_DIR`, `CACHE_DIR`, and `ENV_DIR`.
+
+The initial working directory is the root directory of your application.
+
+For aborting the build at any point in `buildpack-run.sh`, you can use `exit 1`.
 
 This buildpack is useful for finding out information about the build process.
 
@@ -17,7 +23,7 @@ This buildpack is useful for finding out information about the build process.
 Usage
 -----
 
-Simply do
+Simply do:
 
 ~~~bash
 # Create file 'buildpack-run.sh' containing bash commands
@@ -26,7 +32,7 @@ echo 'echo "hello world"' >buildpack-run.sh
 heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run.git
 ~~~
 
-On the next `git push heroku master`, the `heroku-buildpack-run` buildpack will be used.
+The buildpack is now set and will be used on the next `git push heroku master`.
 
 For more information on how to use custom buildpacks, see <https://devcenter.heroku.com/articles/third-party-buildpacks#using-a-custom-buildpack>.
 

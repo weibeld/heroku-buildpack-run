@@ -6,7 +6,7 @@
 # ---
 #
 # The 'detect' script is executed by the slug compiler with one argument:
-#   1. build_dir: location of your app directory on the build dyno
+#   $1: build_dir, location of your app directory on the build dyno
 #
 # If 'detect' exits with status code 0:
 #   stdout is inserted in "-----> <X> app detected" and 'compile' script is run
@@ -15,9 +15,10 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <daniel.weibel@unifr.ch> March 2015
+# Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
 #------------------------------------------------------------------------------#
 
+# If there is no buildpack-run.sh, then don't apply this buildpack
 [[ ! -f "$1/buildpack-run.sh" ]] &&  exit 1
 
 echo "Run"

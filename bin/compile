@@ -13,7 +13,7 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <daniel.weibel@unifr.ch> March 2015
+# Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
 #------------------------------------------------------------------------------#
 
 # Rename these variables for easier access in buildpack-run.sh
@@ -24,4 +24,8 @@ ENV_DIR=$3
 cd "$BUILD_DIR"
 
 echo "Sourcing buildpack-run.sh" | sed 's/^/-----> /'
+
+# Source commands in buildpack-run.sh (i.e. the commmands in buildpack-run.sh
+# are executed in the current shell, not in a new shell as it would be the case
+# if buildpack-run.sh was a script). The build can be aborted with 'exit 1'.
 source ./buildpack-run.sh
