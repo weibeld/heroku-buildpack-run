@@ -15,7 +15,7 @@ Available build-specific variables are `BUILD_DIR`, `CACHE_DIR`, and `ENV_DIR`.
 
 The initial working directory is the root directory of your application.
 
-For aborting the build at any point in `buildpack-run.sh`, you can use `exit 1`.
+For aborting the build at any point, you can use the `exit` command with a non-zero exit code, e.g. `exit 1`.
 
 This buildpack is useful for finding out information about the build process.
 
