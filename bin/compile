@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 #
 # This buildpack can be used for executing custom commands on the build dyno.
-# All the Bash commands in buildpack-run.sh will be run during the execution of
-# the 'compile' script. The working dir for the script will be the root app dir.
+#
+# A user-specified file (specified by the config var BUILDPACK_RUN, or, by
+# default, ./buldpack-run.sh) is sourced on the build dyno at compile time.
+#
+# Note: sourcing means that the commands in the file are executed in the
+#       current shell.
+#
+# The working directory is the root directory of the app.
 #
 # ---
 #
@@ -16,13 +22,15 @@
 # Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
 #------------------------------------------------------------------------------#
 
-# Rename these variables for easier access in buildpack-run.sh
+# Rename variables for easier access in the user-specified file to source
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
+# Test if the config var BUILDPACK_RUN is set. If yes, take on its content as
+# the file to source, if not, take on ./buildpack-run.sh as the file to source.
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
   buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
 else
@@ -31,7 +39,6 @@ fi
 
 echo "Sourcing $buildpack_run" | sed 's/^/-----> /'
 
-# Source commands in buildpack-run.sh (i.e. the commmands in buildpack-run.sh
-# are executed in the current shell, not in a new shell as it would be the case
-# if buildpack-run.sh was a script). The build can be aborted with 'exit 1'.
+# Source the specified file. Note: the entire build can be aborted by the
+# command 'exit 1' in the sourced file.
 source "$buildpack_run"

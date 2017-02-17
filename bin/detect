@@ -18,7 +18,15 @@
 # Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
 #------------------------------------------------------------------------------#
 
-# If there is no buildpack-run.sh, then don't apply this buildpack
-[[ ! -f "$1/buildpack-run.sh" ]] &&  exit 1
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
 
-echo "Run"
+if [[ -f "$BUILD_DIR/buildpack-run.sh" || -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
+  echo "Run"
+else
+  echo "Can't apply heroku-buildpack-run: you have to either set the"
+  echo "config var BUILDPACK_RUN, or add the file buildpack-run.sh"
+  echo "in the root directory of your app."
+  exit 1
+fi
