@@ -50,8 +50,14 @@ else
   exit 1
 fi
 
-echo "Sourcing $buildpack_run" | sed 's/^/-----> /'
+IFS=' ' files=($buildpack_run)
+for i in ${!files[@]}; do
+  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
+  source ${files[$i]}
+done
+
+#echo "Sourcing $buildpack_run" | sed 's/^/-----> /'
 
 # Source the specified file. Note: the entire build can be aborted by the
 # command 'exit 1' in the sourced file.
-source $buildpack_run
+#source $buildpack_run
