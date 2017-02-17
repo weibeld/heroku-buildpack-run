@@ -2,10 +2,10 @@
 #
 # This buildpack can be used for executing custom commands on the build dyno.
 #
-# A user-specified file (specified by the config var BUILDPACK_RUN, or, by
-# default, ./buldpack-run.sh) is sourced on the build dyno at compile time.
+# A list of user-specified file (specified by the config var BUILDPACK_RUN, or,
+# by default, ./buildpack-run.sh) is sourced on the build dyno at compile time.
 #
-# Note: sourcing means that the commands in the file are executed in the
+# Note: sourcing means that the commands in the file(s) are executed in the
 #       current shell.
 #
 # The working directory is the root directory of the app.
@@ -42,22 +42,16 @@ elif [[ -f ./buildpack-run.sh ]]; then
   buildpack_run=./buildpack-run.sh
 # If neither exists, abort the build
 else
-  echo "Error: can't apply the buildpack. You have to either create" | i
-  echo "the file buildpack-run.sh in the root directory of your app" | i
-  echo "or set the config var BUILDPACK_RUN to any other file you" | i
-  echo "want to source."
+  echo "Error: can't apply the buildpack because neither buildpack-run.sh" | i
+  echo "exists, nor the BUILDPACK_RUN config variable is set." | i
   echo
   exit 1
 fi
 
-IFS=' ' files=($buildpack_run)
+# Source each of the colon-delimited files
+IFS=':' files=($buildpack_run)
 for i in ${!files[@]}; do
   echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
-  source ${files[$i]}
+  source "${files[$i]}"
 done
 
-#echo "Sourcing $buildpack_run" | sed 's/^/-----> /'
-
-# Source the specified file. Note: the entire build can be aborted by the
-# command 'exit 1' in the sourced file.
-#source $buildpack_run

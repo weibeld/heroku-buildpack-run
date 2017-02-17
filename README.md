@@ -7,77 +7,55 @@ Run custom commands during the build process.
 Description
 -----------
 
-This buildpack allows to execute arbitrary commands on the build dyno during the build process by sourcing a file containig Bash commands.
+This buildpack allows to execute arbitrary commands on the build dyno during the build process by sourcing one or more files with Bash commands.
 
-Just create the file `buildpack-run.sh` in the root directory of your application and write in this file the commands that you want to execute. This file is then *sourced* by the `compile` script of this buildpack. That is, the commands in `buildpack-run.sh` are executed on the build dyno as they would be part of the `compile` script.
-
-Available build-specific variables are `BUILD_DIR`, `CACHE_DIR`, and `ENV_DIR`.
-
-The initial working directory is the root directory of your application.
-
-For aborting the build at any point, you can use the `exit` command with a non-zero exit code, e.g. `exit 1`.
 
 Usage
 -----
+
+### Basic
 
 Add the buildpack to your app:
 ~~~bash
 heroku buildpacks:add https://github.com/weibeld/heroku-buildpack-run.git
 ~~~
 
-Create the file `buildpack-run.sh` in the root directory of your app:
+Create the file `buildpack-run.sh` in the root directory of your app, for example:
 ~~~bash
 echo "Hello World"
 ~~~
 
-Now push your app to Heroku as usual, and the commands in `buildpack-run.sh` will be executed during the build.
-
-**Note:** the working directory of the shell in which your commands will be executed is the root directory of your app.
+Now push your app to Heroku as usual. The commands in `buildpack-run.sh` will be executed during the build.
 
 
-###Use of a different file name
+###Use of a different filename
 
-If you want to use another file name than `buildpack-run.sh`, then simply create this file and specify its name in the config variable `BUILDPACK_RUN`:
+If you want to use another filename than `buildpack-run.sh`, then you can specify this filename in the app config variable `BUILDPACK_RUN`. For example, if your file is called `my_file.sh`:
+
 ~~~bash
-heroku config:set BUILDPACK_RUN=<filename>
+heroku config:set BUILDPACK_RUN=my_file.sh
 ~~~
 
 
+### Use of multiple files
 
-
-Usage
------
-
-Simply do:
+You can specify multiple files to `BUILDPACK_RUN` by separating them with a `:`. If, for example, you want to source the files `my_file_1.sh` and `my_file_2.sh` in this order, then set your `BUILDPACK_RUN` as follows:
 
 ~~~bash
-# Create file 'buildpack-run.sh' containing bash commands
-echo 'echo "hello world"' >buildpack-run.sh
-
-heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run.git
+heroku config:set BUILDPACK_RUN="my_file_1.sh:my_file_2.sh"
 ~~~
 
-The buildpack is now set and will be used on the next `git push heroku master`.
 
-For more information on how to use custom buildpacks, see <https://devcenter.heroku.com/articles/third-party-buildpacks#using-a-custom-buildpack>.
+Additional Information
+----------------------
 
-
-Usage together with other buildpacks
-------------------------------------
-
-You can use multiple buildpacks at the same time as described on [https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app](
-https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app):
-
-~~~bash
-heroku buildpacks:add --index 1 heroku/ruby
-heroku buildpacks:add --index 2 https://github.com/weibeld/heroku-buildpack-run.git
-~~~
-
-You can always check which buildpacks you have currently added to your app with:
-
-~~~bash
-heroku buildpacks
-~~~
+- The working directory of the shell in which your commands will be executed is the root directory of your app
+- Filenames specified to `BUILDPACK_RUN` must not contain any spaces
+- You can use the command `exit 1` in your files to abort the build
+- The following build-specific shell variables are available to your command files:
+    - `BUILD_DIR`: path to the root directoy of your app on the build dyno
+    - `ENV_DIR`: the directory holding all your app's config variables as files
+    - `CACHE_DIR`: directory whose content persists across builds of your app
 
 
 License
