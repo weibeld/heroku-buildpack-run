@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Detects if the buildpack is applicable to the app at hand. The app must have
-# the file run.sh in its root directory.
+# Detect if the buildpack can be applied to the app. In this case, it is always
+# true, as the check is made in the 'compile' script.
 #
 # ---
 #
@@ -15,18 +15,7 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
+# Daniel Weibel <danielmweibel@gmail.com> March 2015 - February 2017
 #------------------------------------------------------------------------------#
 
-BUILD_DIR=$1
-CACHE_DIR=$2
-ENV_DIR=$3
-
-#if [[ -f "$BUILD_DIR/buildpack-run.sh" || -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  echo "Run"
-#else
-#  echo "Can't apply heroku-buildpack-run: you have to either set the"
-#  echo "config var BUILDPACK_RUN, or add the file buildpack-run.sh"
-#  echo "in the root directory of your app."
-#  exit 1
-#fi
+echo "Run"

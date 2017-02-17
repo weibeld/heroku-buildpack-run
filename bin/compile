@@ -19,8 +19,13 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <danielmweibel@gmail.com> March 2015 - July 2016
+# Daniel Weibel <danielmweibel@gmail.com> March 2015 - February 2017
 #------------------------------------------------------------------------------#
+
+# Indent text by seven spaces
+i() {
+  sed 's/^/       /'
+}
 
 # Rename variables for easier access in the user-specified file to source
 BUILD_DIR=$1
@@ -29,16 +34,19 @@ ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# Test if the config var BUILDPACK_RUN is set. If yes, take on its content as
-# the file to source, if not, take on ./buildpack-run.sh as the file to source.
+# If config var BUILDPACK_RUN exists, take its content as the file(s) to source
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
   buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
+# Otherwise, if buildpack-run.sh exists, take it as the file to source
 elif [[ -f ./buildpack-run.sh ]]; then
   buildpack_run=./buildpack-run.sh
+# If neither exists, abort the build
 else
-  echo "Can't apply heroku-buildpack-run: you have to either set the"
-  echo "config var BUILDPACK_RUN, or add the file buildpack-run.sh"
-  echo "in the root directory of your app."
+  echo "Error: can't apply the buildpack. You have to either create" | i
+  echo "the file buildpack-run.sh in the root directory of your app" | i
+  echo "or set the config var BUILDPACK_RUN to any other file you" | i
+  echo "want to source."
+  echo
   exit 1
 fi
 
@@ -46,4 +54,4 @@ echo "Sourcing $buildpack_run" | sed 's/^/-----> /'
 
 # Source the specified file. Note: the entire build can be aborted by the
 # command 'exit 1' in the sourced file.
-source "$buildpack_run"
+source $buildpack_run
