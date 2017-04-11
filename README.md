@@ -28,7 +28,7 @@ echo "Hello World"
 Now push your app to Heroku as usual. The commands in `buildpack-run.sh` will be executed during the build.
 
 
-###Use of a different filename
+### Use of a different filename
 
 If you want to use another filename than `buildpack-run.sh`, then you can specify this filename in the app config variable `BUILDPACK_RUN`. For example, if your file is called `my_file.sh`:
 
