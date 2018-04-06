@@ -27,20 +27,18 @@ i() {
   sed 's/^/       /'
 }
 
-# Rename variables for easier access in the user-specified file to source
+# These vars can be accessed in the user-supplied scripts to run
 export BUILD_DIR=$1
 export CACHE_DIR=$2
 export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# If config var BUILDPACK_RUN exists, take its content as the file(s) to source
+# Check if config var BUILDPACK_RUN exists
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
   RUN=$(cat "$ENV_DIR/BUILDPACK_RUN")
-# Otherwise, if buildpack-run.sh exists, take it as the file to source
 elif [[ -f ./buildpack-run.sh ]]; then
   RUN=./buildpack-run.sh
-# If neither exists, abort the build
 else
   echo "Error: can't apply buildpack, because neither buildpack-run.sh" | i
   echo "exists, nor the BUILDPACK_RUN config variable is set." | i
@@ -51,7 +49,8 @@ fi
 # Execute each of the colon-delimited files (with optional arguments)
 IFS=':' cmds=($RUN)
 for c in ${cmds[@]}; do
-  echo "Executing: $c" | sed 's/^/-----> /'
+  echo "Running: 'bash $c'" | sed 's/^/-----> /'
   eval bash $c
 done
 
+exit 0
