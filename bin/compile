@@ -36,22 +36,22 @@ cd "$BUILD_DIR"
 
 # If config var BUILDPACK_RUN exists, take its content as the file(s) to source
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
+  RUN=$(cat "$ENV_DIR/BUILDPACK_RUN")
 # Otherwise, if buildpack-run.sh exists, take it as the file to source
 elif [[ -f ./buildpack-run.sh ]]; then
-  buildpack_run=./buildpack-run.sh
+  RUN=./buildpack-run.sh
 # If neither exists, abort the build
 else
-  echo "Error: can't apply the buildpack because neither buildpack-run.sh" | i
+  echo "Error: can't apply buildpack, because neither buildpack-run.sh" | i
   echo "exists, nor the BUILDPACK_RUN config variable is set." | i
   echo
   exit 1
 fi
 
-# Source each of the colon-delimited files
-IFS=':' files=($buildpack_run)
-for i in ${!files[@]}; do
-  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
-  source "${files[$i]}"
+# Execute each of the colon-delimited files (with optional arguments)
+IFS=':' cmds=($RUN)
+for c in ${cmds[@]}; do
+  echo "Executing: $c" | sed 's/^/-----> /'
+  eval bash $c
 done
 
