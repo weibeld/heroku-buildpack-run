@@ -61,7 +61,7 @@ For, example, you can do something like this:
 heroku config:set BUILDPACK_RUN="script1.sh 1 2 3:script2.sh hey 'hello world'"
 ~~~
 
-And this will execute `script1.sh 1 2 3` and then `script2.sh hey 'hello world'`.
+And this will execute `bash script1.sh 1 2 3` and then `bash script2.sh hey 'hello world'`.
 
 ## Build Environment Variables
 
