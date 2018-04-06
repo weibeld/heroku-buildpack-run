@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
 #
-# This buildpack can be used for executing custom commands on the build dyno.
+# This buildpacks allows to run custom Bash file on the build dyno.
 #
-# A list of user-specified file (specified by the config var BUILDPACK_RUN, or,
-# by default, ./buildpack-run.sh) is sourced on the build dyno at compile time.
+# Usage:
 #
-# Note: sourcing means that the commands in the file(s) are executed in the
-#       current shell.
+# Run a single file during the build:
+#     heroku config:set BUILDPACK_RUN=file.sh
+#     git push heroku master
 #
-# The working directory is the root directory of the app.
+# Multiple files:
+#     heroku config:set BUILDPACK_RUN=file1.sh:file2.sh:file3.sh
+#     git push heroku master
+#
+# With arguments:
+#     heroku config:set BUILDPACK_RUN="file1.sh one two:file2.sh 'Hello World'"
+#     git push heroku master
+#
+# If BUILDPACK_RUN is not set, the file buildpack-run.sh is assumed:
+#     vim buildpack-run.sh        
+#     git push heroku master
+# 
+# The working directory for the executed files is the app root directory.
 #
 # ---
 #
@@ -19,7 +31,7 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <danielmweibel@gmail.com> March 2015 - February 2017
+# Daniel Weibel <daniel@weibeld.net> March 2015 - April 2018
 #------------------------------------------------------------------------------#
 
 # Indent text by seven spaces
@@ -27,31 +39,30 @@ i() {
   sed 's/^/       /'
 }
 
-# Rename variables for easier access in the user-specified file to source
-BUILD_DIR=$1
-CACHE_DIR=$2
-ENV_DIR=$3
+# These vars can be accessed in the user-supplied scripts
+export BUILD_DIR=$1
+export CACHE_DIR=$2
+export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# If config var BUILDPACK_RUN exists, take its content as the file(s) to source
+# Get run specification (either BUILDPACK_RUN var or buildpack-run.sh file)
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
-# Otherwise, if buildpack-run.sh exists, take it as the file to source
+  RUN=$(cat "$ENV_DIR/BUILDPACK_RUN")
 elif [[ -f ./buildpack-run.sh ]]; then
-  buildpack_run=./buildpack-run.sh
-# If neither exists, abort the build
+  RUN=./buildpack-run.sh
 else
-  echo "Error: can't apply the buildpack because neither buildpack-run.sh" | i
-  echo "exists, nor the BUILDPACK_RUN config variable is set." | i
+  echo "Error: can't apply buildpack, because neither the BUILDPACK_RUN" | i
+  echo "config variable, nor the file buildpack-run.sh exists." | i
   echo
   exit 1
 fi
 
-# Source each of the colon-delimited files
-IFS=':' files=($buildpack_run)
-for i in ${!files[@]}; do
-  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
-  source "${files[$i]}"
+# Run each of the colon-delimited files (with optional args) with bash
+IFS=':' cmds=($RUN)
+for c in ${cmds[@]}; do
+  echo "Running: bash $c" | sed 's/^/-----> /'
+  eval bash $c
 done
 
+exit 0
