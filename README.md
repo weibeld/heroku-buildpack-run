@@ -73,6 +73,6 @@ The following variables holding information about the Heroku build environment a
 
 The working directory for your scripts is `BUILD_DIR`, which is the root directory of your app.
 
-# License
+## License
 
 Licensed under the MIT License. See [LICENSE.md](LICENSE.md) file.

@@ -15,7 +15,7 @@
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #
-# Daniel Weibel <danielmweibel@gmail.com> March 2015 - February 2017
+# Daniel Weibel <daniel@weibeld.net> March 2015 - April 2018
 #------------------------------------------------------------------------------#
 
 echo "Run"
