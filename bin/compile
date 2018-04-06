@@ -28,9 +28,9 @@ i() {
 }
 
 # Rename variables for easier access in the user-specified file to source
-BUILD_DIR=$1
-CACHE_DIR=$2
-ENV_DIR=$3
+export BUILD_DIR=$1
+export CACHE_DIR=$2
+export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
