@@ -25,7 +25,7 @@ echo "Hello World"
 
 Now push your app to Heroku as usual. The `buildpack-run.sh` script will be run by Bash during the build.
 
-Note that it is **not** required to add a `#!/bin/bash` to your script.
+Note that it is **not** required to add a `#!/bin/bash` to your script (but if it's there, it doesn't do any harm).
 
 ## Usage with Another Filename
 
@@ -37,7 +37,7 @@ For example, if your script is called `script.sh`:
 heroku config:set BUILDPACK_RUN=script.sh
 ~~~
 
-The specified value must be a filename relative to the root directory of your app, so it could also be, for example, `bin/script.sh`.
+The specified value must be a filename relative to the root directory of your app, so it could also be something like `bin/script.sh` or `./script.sh`.
 
 Note that the `BUILDPACK_RUN` config variable takes precedence over the default `buildpack-run.sh` file. So, if you have both, a `BUILDPACK_RUN` variable and a `buildpack-run.sh` file, then only the file in `BUILDPACK_RUN` will be executed.
 
