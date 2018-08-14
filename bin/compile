@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
 # This buildpacks allows to run custom Bash file on the build dyno.
+# NOTE: This buildpack has been modified to exit in case of errors as the
+#       original continues building the image despite the webpack being broken.
 #
 # Usage:
 #
@@ -33,6 +35,7 @@
 #
 # Daniel Weibel <daniel@weibeld.net> March 2015 - April 2018
 #------------------------------------------------------------------------------#
+set -e
 
 # Indent text by seven spaces
 i() {
@@ -64,5 +67,3 @@ for c in ${cmds[@]}; do
   echo "Running: bash $c" | sed 's/^/-----> /'
   eval bash $c
 done
-
-exit 0
