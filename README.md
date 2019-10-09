@@ -58,10 +58,10 @@ So, if you want to run only a shell script, you can name it `buildpack-run.sh` a
 The following special environment variables are available to your commands during the build:
 
 - `BUILD_DIR`: absolute path of your app's root directory on the build dyno
-- `CACHE_DIR`: directory on the build dyno that persists between builds
+- `CACHE_DIR`: cache directory that persists between builds
 - `ENV_DIR`: directory containing the values of all config variables in files
 
-The working directory for your scripts is `BUILD_DIR`, which is the root directory of your app.
+`BUILD_DIR` corresponds to the working directory during the execution of the buildpack.
 
 ## License
 
