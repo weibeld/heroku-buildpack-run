@@ -28,6 +28,8 @@ The commands to run are specified in the `BUILDPACK_RUN` [config variable](https
 
 A command can be anything from a user-provided shell script or binary to a native UNIX command. Commands may have arguments as well.
 
+**All commands must be executable. That means, shell scripts must have a shebang line (`#!/bin/bash` or similar) and must have the executable bit set (`chmod +x script.sh`).**
+
 ### Example
 
 ```bash
