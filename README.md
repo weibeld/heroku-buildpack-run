@@ -53,7 +53,7 @@ If the `BUILDPACK_RUN` config variable is unset, then `./buildpack-run.sh` is us
 
 So, if you want to run only a shell script, you can name it `buildpack-run.sh` and omit setting the `BUILDPACK_RUN` config variable.
 
-## Build Environment Variables
+## Environment variables
 
 The following special environment variables are available to your commands during the build:
 
