@@ -53,8 +53,8 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
 elif [[ -f ./buildpack-run.sh ]]; then
   COMMANDS=./buildpack-run.sh
 else
-  echo "Error: can't apply buildpack. You must specify one ore more colon-delimited" |i
-  echo "commands in BUILDPACK_RUN (default is ./buildpack-run.sh)." | i
+  echo "Error: can't apply buildpack. You must specify one ore more colon-" | e
+  echo "delimited commands in BUILDPACK_RUN (default is ./buildpack-run.sh)." | e
   echo
   exit 1
 fi
