@@ -12,15 +12,15 @@ If any command exits with a non-zero code, the build is aborted.
 
 Add the buildpack in addition to any other buildpacks:
 
-~~~bash
+```bash
 heroku buildpacks:add https://github.com/weibeld/heroku-buildpack-run
-~~~
+```
 
 Set the buildpack as the only buildpack:
 
-~~~bash
+```bash
 heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run
-~~~
+```
 
 ## Configure
 
@@ -30,10 +30,10 @@ A command can be anything from a user-provided shell script or binary to a nativ
 
 ### Example
 
-~~~bash
+```bash
 heroku config:set BUILDPACK_RUN='./script.sh:ls -l:bin/myexec foo bar'
 git push heroku master
-~~~
+```
 
 This causes the buildpack to run the following commands in sequence:
 
@@ -43,7 +43,7 @@ This causes the buildpack to run the following commands in sequence:
 
 Notes:
 
-- `script.sh` is a user-provided shell script
+- `./script.sh` is a user-provided shell script
 - `ls -l` refers to the native `ls` command on the build dyno
 - `bin/myexec` is a user-provided binary 
 
