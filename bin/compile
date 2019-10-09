@@ -29,7 +29,8 @@
 # Indent stdin
 i() { sed 's/^/       /'; }
 a() { sed 's/^/-----> /'; }
-e() { sed "s/^/$(printf '\033')[31m=====> /;s/$/$(printf '\033')[0m/"; }
+I() { sed "s/^/$(printf '\033')[31m       /;s/$/$(printf '\033')[0m/"; }
+A() { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
 
 
 # These environment variables can be accessed from the user-supplied commands
@@ -45,9 +46,10 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
 elif [[ -f ./buildpack-run.sh ]]; then
   COMMANDS=./buildpack-run.sh
 else
-  echo "Error: can't apply buildpack." | e
-  echo "You must specify one ore more colon-delimited commands in BUILDPACK_RUN" | i
-  echo "(default is './buildpack-run.sh')." | i
+  echo "Error: can't apply buildpack." | A
+  echo "You must specify one ore more colon-delimited commands in" | I
+  echo "BUILDPACK_RUN or create the default file './buildpack-run.sh'." | I
+  echo "See https://github.com/weibeld/heroku-buildpack-run#configure." | I
   echo
   exit 1
 fi
@@ -59,7 +61,7 @@ for c in ${COMMANDS[@]}; do
   eval "$c"
   EXIT_CODE=$?
   if [[ "$EXIT_CODE" != 0 ]]; then
-    echo "Aborting build because '$c' exited with a non-zero code ($EXIT_CODE)" | e
+    echo "Aborting build because '$c' exited with a non-zero code ($EXIT_CODE)" | A
     exit 1
   fi
 done
