@@ -37,6 +37,7 @@
 # Indent stdin
 i() { sed 's/^/       /'; }
 a() { sed 's/^/-----> /'; }
+e() { sed 's/^/!!!!!! /'; }
 
 # These vars can be accessed in the user-supplied scripts
 export BUILD_DIR=$1
@@ -64,8 +65,7 @@ for c in ${COMMANDS[@]}; do
   eval "$c"
   EXIT_CODE=$?
   if [[ "$EXIT_CODE" != 0 ]]; then
-    echo "Aborting build because command returned non-zero exit code:" | a
-    echo "$c returned $EXIT_CODE" | i
+    echo "Aborting build because '$c' returned non-zero exit code: $EXIT_CODE" | e
     exit 1
   fi
 done
