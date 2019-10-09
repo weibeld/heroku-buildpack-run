@@ -46,20 +46,20 @@ export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# Extract commands
+# Extract commands from BUILDPACK_RUN env var
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  RUN=$(cat "$ENV_DIR/BUILDPACK_RUN")
+  COMMANDS=$(cat "$ENV_DIR/BUILDPACK_RUN")
 elif [[ -f ./buildpack-run.sh ]]; then
-  RUN=./buildpack-run.sh
+  COMMANDS=./buildpack-run.sh
 else
   echo "Error: can't apply buildpack. You must specify one ore more commands" |i
   echo "in BUILDPACK_RUN (default is ./buildpack-run.sh)." | i
   echo
   exit 1
 fi
-IFS=':' COMMANDS=($RUN)
+IFS=':' COMMANDS=($COMMANDS)
 
-# Run each of the colon-delimited files (with optional args) with bash
+# Run commands
 for c in ${COMMANDS[@]}; do
   echo "Running: $c" | sed 's/^/-----> /'
   eval "$c"
