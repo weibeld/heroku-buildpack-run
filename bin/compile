@@ -34,10 +34,9 @@
 # Daniel Weibel <daniel@weibeld.net> March 2015 - April 2018
 #------------------------------------------------------------------------------#
 
-# Indent text by seven spaces
-i() {
-  sed 's/^/       /'
-}
+# Indent stdin
+i() { sed 's/^/       /'; }
+a() { sed 's/^/-----> /'; }
 
 # These vars can be accessed in the user-supplied scripts
 export BUILD_DIR=$1
@@ -52,8 +51,8 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
 elif [[ -f ./buildpack-run.sh ]]; then
   COMMANDS=./buildpack-run.sh
 else
-  echo "Error: can't apply buildpack. You must specify one ore more commands" |i
-  echo "in BUILDPACK_RUN (default is ./buildpack-run.sh)." | i
+  echo "Error: can't apply buildpack. You must specify one ore more colon-delimited" |i
+  echo "commands in BUILDPACK_RUN (default is ./buildpack-run.sh)." | i
   echo
   exit 1
 fi
@@ -61,8 +60,14 @@ IFS=':' COMMANDS=($COMMANDS)
 
 # Run commands
 for c in ${COMMANDS[@]}; do
-  echo "Running: $c" | sed 's/^/-----> /'
+  echo "Running: $c" | a
   eval "$c"
+  EXIT_CODE=$?
+  if [[ "$EXIT_CODE" != 0 ]]; then
+    echo "Aborting build because command returned non-zero exit code:" | a
+    echo "$c returned $EXIT_CODE" | i
+    exit 1
+  fi
 done
 
 exit 0
