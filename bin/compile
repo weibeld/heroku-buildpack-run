@@ -57,10 +57,11 @@ IFS=':' COMMANDS=($COMMANDS)
 
 # Run commands
 for c in ${COMMANDS[@]}; do
+  # Test if local file is executable (breaking change from previous version)
   file=$(echo "$c" | cut -f 1 -d " ")
   if [[ -f "$file" && ! -x "$file" ]]; then
     echo "Error: $file is not executable."  | A
-    echo "Fix it with chmod +x $file." | I
+    echo "You can make it executable with 'chmod +x $file.'" | I
     exit 1
   fi
   echo "Running: $c" | a
