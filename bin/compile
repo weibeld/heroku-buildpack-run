@@ -57,6 +57,12 @@ IFS=':' COMMANDS=($COMMANDS)
 
 # Run commands
 for c in ${COMMANDS[@]}; do
+  file=$(echo "$c" | cut -f 1 -d " ")
+  if [[ -f "$file" && ! -x "$file" ]]; then
+    echo "Error: $file is not executable."  | A
+    echo "Fix it with chmod +x $file." | I
+    exit 1
+  fi
   echo "Running: $c" | a
   eval "$c"
   EXIT_CODE=$?
