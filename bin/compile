@@ -61,8 +61,8 @@ fi
 # Run each of the colon-delimited files (with optional args) with bash
 IFS=':' cmds=($RUN)
 for c in ${cmds[@]}; do
-  echo "[TEST] Running: bash $c" | sed 's/^/-----> /'
-  eval bash $c
+  echo "Running: ./$c" | sed 's/^/-----> /'
+  eval "./$c"
 done
 
 exit 0
