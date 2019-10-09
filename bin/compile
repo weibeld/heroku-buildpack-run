@@ -48,7 +48,7 @@ elif [[ -f ./buildpack-run.sh ]]; then
 else
   echo "Error: can't apply buildpack." | A
   echo "You must specify one ore more colon-delimited commands in" | I
-  echo "BUILDPACK_RUN or create the default file './buildpack-run.sh'." | I
+  echo "BUILDPACK_RUN or use the default file ./buildpack-run.sh." | I
   echo "See https://github.com/weibeld/heroku-buildpack-run#configure." | I
   echo
   exit 1
