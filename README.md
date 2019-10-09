@@ -2,74 +2,64 @@
 
 Run custom commands during the build process.
 
-
 ## Description
 
-This buildpack allows to execute arbitrary commands on the build dyno during the build process by running one or more user-supplied Bash scripts.
+This buildpack allows to specify arbitrary commands that will be run in sequence during the build process.
 
+If any command exits with a non-zero code, the build is aborted.
 
-## Basic Usage
+## Enable
 
-Add the buildpack to your app:
+Add the buildpack in addition to any other buildpacks:
 
 ~~~bash
 heroku buildpacks:add https://github.com/weibeld/heroku-buildpack-run
 ~~~
 
-Create the file `buildpack-run.sh` in the root directory of your app. For example:
+Set the buildpack as the only buildpack:
 
 ~~~bash
-# This is buildpack-run.sh
-echo "Hello World"
+heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run
 ~~~
 
-Now push your app to Heroku as usual. The `buildpack-run.sh` script will be run by Bash during the build.
+## Configure
 
-Note that it is **not** required to add a `#!/bin/bash` to your script (but if it's there, it doesn't do any harm).
+The commands to run are specified in the `BUILDPACK_RUN` [config variable](https://devcenter.heroku.com/articles/config-vars) by using colons as delimiters.
 
-## Usage with Another Filename
+A command can be anything from a user-provided shell script or binary to a native UNIX command. Commands may have arguments as well.
 
-If you want to use a script with a different name than `buildpack-run.sh`, then you can specify this file in the Heroku app config variable `BUILDPACK_RUN`.
-
-For example, if your script is called `script.sh`:
+### Example
 
 ~~~bash
-heroku config:set BUILDPACK_RUN=script.sh
+heroku config:set BUILDPACK_RUN='./script.sh:ls -l:bin/myexec foo bar'
+git push heroku master
 ~~~
 
-The specified value must be a filename relative to the root directory of your app, so it could also be something like `bin/script.sh` or `./script.sh`.
+This causes the buildpack to run the following commands in sequence:
 
-Note that the `BUILDPACK_RUN` config variable takes precedence over the default `buildpack-run.sh` file. So, if you have both, a `BUILDPACK_RUN` variable and a `buildpack-run.sh` file, then only the file in `BUILDPACK_RUN` will be executed.
+1. `./script.sh`
+2. `ls -l`
+3. `bin/myexec foo bar`
 
-## Usage with Multiple Files
+Notes:
 
-You can specify multiple files in `BUILDPACK_RUN` by separating them with colons:
+- `script.sh` is a user-provided shell script
+- `ls -l` refers to the native `ls` command on the build dyno
+- `bin/myexec` is a user-provided binary 
 
-~~~bash
-heroku config:set BUILDPACK_RUN=script1.sh:script2.sh:script3.sh
-~~~
+### Default value
 
-The scripts will be executed sequentially in the specified order.
+If the `BUILDPACK_RUN` config variable is unset, then `./buildpack-run.sh` is used as the default command.
 
-## Usage with Arguments
-
-You can specify arguments to your scripts, just as you would on the command line.
-
-For, example, you can do something like this:
-
-~~~bash
-heroku config:set BUILDPACK_RUN="script1.sh 1 2 3:script2.sh hey 'hello world'"
-~~~
-
-And this will execute `bash script1.sh 1 2 3` and then `bash script2.sh hey 'hello world'`.
+So, if you want to run only a shell script, you can name it `buildpack-run.sh` and omit setting the `BUILDPACK_RUN` config variable.
 
 ## Build Environment Variables
 
-The following variables holding information about the Heroku build environment are accessible to your scripts:
+The following special environment variables are available to your commands during the build:
 
 - `BUILD_DIR`: absolute path of your app's root directory on the build dyno
 - `CACHE_DIR`: directory on the build dyno that persists between builds
-- `ENV_DIR`: directory containing files for the app's Heroku config variables
+- `ENV_DIR`: directory containing the values of all config variables in files
 
 The working directory for your scripts is `BUILD_DIR`, which is the root directory of your app.
 

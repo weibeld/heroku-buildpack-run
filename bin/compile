@@ -1,26 +1,20 @@
 #!/usr/bin/env bash
 #
-# This buildpacks allows to run custom Bash file on the build dyno.
+# This buildpacks allows to run custom commands on the build dyno.
 #
-# Usage:
+# Example:
+#   heroku config:set BUILDPACK_RUN='./myexec-1:ls -l:bin/myexec-2 foo bar'
+#   git push heroku master
 #
-# Run a single file during the build:
-#     heroku config:set BUILDPACK_RUN=file.sh
-#     git push heroku master
+# The above example runs the following three commands during the build:
+#   1. ./myexec-1
+#   2. ls -l
+#   3. bin/myexec-2 foo bar
 #
-# Multiple files:
-#     heroku config:set BUILDPACK_RUN=file1.sh:file2.sh:file3.sh
-#     git push heroku master
-#
-# With arguments:
-#     heroku config:set BUILDPACK_RUN="file1.sh one two:file2.sh 'Hello World'"
-#     git push heroku master
-#
-# If BUILDPACK_RUN is not set, the file buildpack-run.sh is assumed:
-#     vim buildpack-run.sh        
-#     git push heroku master
-# 
-# The working directory for the executed files is the app root directory.
+# Notes:
+#   - If BUILDPACK_RUN is unset, then './buildpack-run.sh' is used by default
+#   - All commands must be executable (i.e. the exec flag must be set)
+#   - If any command exits with a non-zero code, the build is aborted
 #
 # ---
 #
@@ -30,24 +24,22 @@
 #   $3: env_dir, directory holding all the app's config vars as files
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
-#
-# Daniel Weibel <daniel@weibeld.net> March 2015 - April 2018
 #------------------------------------------------------------------------------#
 
 # Indent stdin
 i() { sed 's/^/       /'; }
 a() { sed 's/^/-----> /'; }
-e() { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
+e() { sed "s/^/$(printf '\033')[31m=====> /;s/$/$(printf '\033')[0m/"; }
 
 
-# These vars can be accessed in the user-supplied scripts
+# These environment variables can be accessed from the user-supplied commands
 export BUILD_DIR=$1
 export CACHE_DIR=$2
 export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# Extract commands from BUILDPACK_RUN env var
+# Extract commands from BUILDPACK_RUN config variable
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
   COMMANDS=$(cat "$ENV_DIR/BUILDPACK_RUN")
 elif [[ -f ./buildpack-run.sh ]]; then
@@ -55,7 +47,7 @@ elif [[ -f ./buildpack-run.sh ]]; then
 else
   echo "Error: can't apply buildpack." | e
   echo "You must specify one ore more colon-delimited commands in BUILDPACK_RUN" | i
-  echo "(default is ./buildpack-run.sh)." | i
+  echo "(default is './buildpack-run.sh')." | i
   echo
   exit 1
 fi
@@ -67,7 +59,7 @@ for c in ${COMMANDS[@]}; do
   eval "$c"
   EXIT_CODE=$?
   if [[ "$EXIT_CODE" != 0 ]]; then
-    echo "Aborting build because '$c' returned non-zero exit code ($EXIT_CODE)" | e
+    echo "Aborting build because '$c' exited with a non-zero code ($EXIT_CODE)" | e
     exit 1
   fi
 done
