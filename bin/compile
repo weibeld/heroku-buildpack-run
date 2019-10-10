@@ -61,7 +61,8 @@ for c in ${COMMANDS[@]}; do
   file=$(echo "$c" | cut -f 1 -d " ")
   if [[ -f "$file" && ! -x "$file" ]]; then
     echo "Error: $file is not executable."  | A
-    echo "You can make it executable with 'chmod +x $file.'" | I
+    echo "Make it executable by running 'chmod +x $file'" | I
+    echo "on your local machine, then commit and push as usual." | I
     exit 1
   fi
   echo "Running: $c" | a
