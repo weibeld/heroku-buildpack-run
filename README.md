@@ -28,7 +28,7 @@ The commands to run are specified in the `BUILDPACK_RUN` [config variable](https
 
 A command can be anything from a user-provided shell script or binary to a native UNIX command. Commands may have arguments as well.
 
-**All commands must be executable. That means, shell scripts must have a shebang line (`#!/bin/bash` or similar) and must have the executable bit set (`chmod +x script.sh`).**
+**All commands must be executable. That means, shell scripts must have a shebang line (`#!/bin/bash` or similar) and must have the executable bit set (run `chmod +x script.sh` on your local machine, then commit and push as usual).**
 
 ### Example
 
@@ -55,7 +55,7 @@ If the `BUILDPACK_RUN` config variable is unset, then `./buildpack-run.sh` is us
 
 So, if you want to run only a shell script, you can name it `buildpack-run.sh` and omit setting the `BUILDPACK_RUN` config variable.
 
-_Don't forget to make the script executable with `chmod +x buildpack-run.sh`._
+_Don't forget to make the script executable by running `chmod +x buildpack-run.sh` on your local machine, then commit and push as usual._
 
 ## Environment variables
 
