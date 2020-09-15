@@ -32,13 +32,32 @@ a() { sed 's/^/-----> /'; }
 I() { sed "s/^/$(printf '\033')[31m       /;s/$/$(printf '\033')[0m/"; }
 A() { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
 
-
 # These environment variables can be accessed from the user-supplied commands
 export BUILD_DIR=$1
 export CACHE_DIR=$2
 export ENV_DIR=$3
 
 cd "$BUILD_DIR"
+
+# Load Heroku config environment to runtime environment
+# https://devcenter.heroku.com/articles/buildpack-api#bin-compile
+load_env_dir() {
+  acceptlist_regex=${2:-''}
+  denylist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  if [ -d "$ENV_DIR" ]; then
+    for e in $(ls $ENV_DIR); do
+      echo "$e" | grep -E "$acceptlist_regex" | grep -qvE "$denylist_regex" &&
+      export "$e=$(cat $ENV_DIR/$e)"
+      :
+    done
+  fi
+}
+
+# Load Heroku config to runtime environment if BUILDPACK_HEROKU_ENV exists
+if [[ -f "$ENV_DIR/BUILDPACK_HEROKU_ENV" ]]; then
+  load_env_dir
+  echo "Loading Heroku config to runtime" | A
+fi
 
 # Extract commands from BUILDPACK_RUN config variable
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then

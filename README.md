@@ -47,7 +47,7 @@ Notes:
 
 - `./script.sh` is a user-provided shell script
 - `ls -l` refers to the native `ls` command on the build dyno
-- `bin/myexec` is a user-provided binary 
+- `bin/myexec` is a user-provided binary
 
 ### Default value
 
@@ -66,6 +66,13 @@ The following special environment variables are available to your commands durin
 - `ENV_DIR`: directory containing the values of all config variables in files
 
 `BUILD_DIR` corresponds to the working directory during the execution of the buildpack.
+
+## Heroku config environment variables
+If you wish your commands to have access to the environment variables set in your Heroku config, then ensure the `BUILDPACK_HEROKU_ENV` env config exists.
+
+This will cause all env config values to be loaded into the runtime environment for your commands, before they execute.
+
+There are some minor exceptions to avoid common issues. Check `bin/compile load_env_dir()`
 
 ## License
 
