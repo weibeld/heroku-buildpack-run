@@ -55,12 +55,22 @@ else
 fi
 IFS=':' COMMANDS=($COMMANDS)
 
-# If requested, load config variables in $ENV_DIR as environment variables
+# If requested, load Heroku config vars in $ENV_DIR as environment variables
 if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
   echo "Loading config vars" | a
+  # By default, load all config vars, if BUILDPACK_RUN_LOAD_CONFIG_SKIP is set,
+  # skip those that are listed therein (colon-separated).
+  skip='^()$'
+  if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP" ]]; then
+    echo "(skipping $(cat "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))" | i
+    skip="^($(tr ':' '|' <"$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))$"
+    echo "skip=$skip"
+  fi
   shopt -s nullglob
   for f in "$ENV_DIR"/*; do
-    export $(basename "$f")=$(cat "$f")
+    if ! grep -qE "$skip" <<<$(basename "$f"); then
+      export $(basename "$f")=$(cat "$f")
+    fi
   done
   shopt -u nullglob
 fi
