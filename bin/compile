@@ -55,6 +55,16 @@ else
 fi
 IFS=':' COMMANDS=($COMMANDS)
 
+# If requested, load config variables in $ENV_DIR as environment variables
+if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
+  echo "Loading config vars" | a
+  shopt -s nullglob
+  for f in "$ENV_DIR"/*; do
+    export $(basename "$f")=$(cat "$f")
+  done
+  shopt -u nullglob
+fi
+
 # Run commands
 for c in ${COMMANDS[@]}; do
   # Test if local file is executable (breaking change from previous version)
