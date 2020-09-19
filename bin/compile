@@ -27,11 +27,10 @@
 #------------------------------------------------------------------------------#
 
 # Indent stdin
-i() { sed 's/^/       /'; }
-a() { sed 's/^/-----> /'; }
-I() { sed "s/^/$(printf '\033')[31m       /;s/$/$(printf '\033')[0m/"; }
-A() { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
-
+indent()     { sed 's/^/       /'; }
+arrow()      { sed 's/^/-----> /'; }
+indent-err() { sed "s/^/$(printf '\033')[31m       /;s/$/$(printf '\033')[0m/"; }
+arrow-err()  { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
 
 # These environment variables can be accessed from the user-supplied commands
 export BUILD_DIR=$1
@@ -40,58 +39,50 @@ export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# Extract commands from BUILDPACK_RUN config variable
-if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  COMMANDS=$(cat "$ENV_DIR/BUILDPACK_RUN")
-elif [[ -f ./buildpack-run.sh ]]; then
-  COMMANDS=./buildpack-run.sh
-else
-  echo "Error: can't apply buildpack." | A
-  echo "You must specify one ore more colon-delimited commands in" | I
-  echo "BUILDPACK_RUN or use the default file ./buildpack-run.sh." | I
-  echo "See https://github.com/weibeld/heroku-buildpack-run#configure." | I
-  echo
-  exit 1
-fi
-IFS=':' COMMANDS=($COMMANDS)
-
-# If requested, load Heroku config vars in $ENV_DIR as environment variables
+# If BUILDPACK_RUN_LOAD_CONFIG is set, load Heroku config vars in $ENV_DIR into
+# env vars (skip those specified in BUILDPACK_RUN_LOAD_CONFIG_SKIP)
+BUILDPACK_RUN_CONFIG=$(mktemp)
 if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
-  echo "Loading config vars" | a
-  # By default, load all config vars, if BUILDPACK_RUN_LOAD_CONFIG_SKIP is set,
-  # skip those that are listed therein (colon-separated).
-  skip='^()$'
   if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP" ]]; then
-    echo "(skipping $(cat "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))" | i
     skip="^($(tr ':' '|' <"$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))$"
-    echo "skip=$skip"
+  else
+    skip='^()$'
   fi
   shopt -s nullglob
   for f in "$ENV_DIR"/*; do
     if ! grep -qE "$skip" <<<$(basename "$f"); then
-      export $(basename "$f")=$(cat "$f")
+      echo "export $(basename "$f")=\"$(cat "$f")\"" >>"$BUILDPACK_RUN_CONFIG"
     fi
   done
-  shopt -u nullglob
 fi
 
+cat $BUILDPACK_RUN_CONFIG
+
+# Extract commands from BUILDPACK_RUN config var
+if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
+  BUILDPACK_RUN_COMMANDS=$(cat "$ENV_DIR/BUILDPACK_RUN")
+elif [[ -f buildpack-run.sh ]]; then
+  BUILDPACK_RUN_COMMANDS=./buildpack-run.sh
+else
+  echo "Error: can't apply buildpack." | arrow-err
+  cat <<EOF | indent-err
+You must either create an executable script named buildpack-run.sh
+in the root directory of your app, or specify the commands you want
+to execute in the BUILDPACK_RUN config variable (colon-delimited).
+See https://github.com/weibeld/heroku-buildpack-run#configure
+EOF
+  exit 1
+fi
+IFS=':' BUILDPACK_RUN_COMMANDS=($BUILDPACK_RUN_COMMANDS)
+
 # Run commands
-for c in ${COMMANDS[@]}; do
-  # Test if local file is executable (breaking change from previous version)
-  file=$(echo "$c" | cut -f 1 -d " ")
-  if [[ -f "$file" && ! -x "$file" ]]; then
-    echo "Error: $file is not executable."  | A
-    echo "Make it executable by running 'chmod +x $file'" | I
-    echo "on your local machine, then commit and push as usual." | I
-    exit 1
-  fi
-  echo "Running: $c" | a
-  eval "$c"
-  EXIT_CODE=$?
-  if [[ "$EXIT_CODE" != 0 ]]; then
-    echo "Aborting build because '$c' exited with a non-zero code ($EXIT_CODE)" | A
+for BUILDPACK_RUN_CMD in ${BUILDPACK_RUN_COMMANDS[@]}; do
+  echo "Running: $BUILDPACK_RUN_CMD" | arrow
+  . "$BUILDPACK_RUN_CONFIG"
+  eval "$BUILDPACK_RUN_CMD"
+  BUILDPACK_RUN_CMD_EXIT=$?
+  if [[ "$BUILDPACK_RUN_CMD_EXIT" != 0 ]]; then
+    echo "Aborting: $BUILDPACK_RUN_CMD exited with $BUILDPACK_RUN_CMD_EXIT" | arrow-err
     exit 1
   fi
 done
-
-exit 0
