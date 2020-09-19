@@ -39,11 +39,11 @@ export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# If BUILDPACK_RUN_LOAD_CONFIG is set, load Heroku config vars in $ENV_DIR into
-# env vars (skip those specified in BUILDPACK_RUN_LOAD_CONFIG_SKIP)
+# If BUILDPACK_RUN_LOAD_CONFIG is set, create file for loading config vars in
+# $ENV_DIR into env vars (skip those in BUILDPACK_RUN_LOAD_CONFIG_SKIP)
 BUILDPACK_RUN_CONFIG=$(mktemp)
 if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
-  echo "Config vars will be loaded as env vars" | arrow
+  echo "Config vars will be available as env vars" | arrow
   if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP" ]]; then
     skip="^($(tr ':' '|' <"$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))$"
     echo "(except: $(cat "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))" | indent
@@ -57,8 +57,6 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
     fi
   done
 fi
-
-cat $BUILDPACK_RUN_CONFIG
 
 # Extract commands from BUILDPACK_RUN config var
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
