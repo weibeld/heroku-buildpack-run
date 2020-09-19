@@ -1,23 +1,5 @@
 #!/usr/bin/env bash
 #
-# This buildpacks allows to run custom commands on the build dyno.
-#
-# Example:
-#   heroku config:set BUILDPACK_RUN='./myexec-1:ls -l:bin/myexec-2 foo bar'
-#   git push heroku master
-#
-# The above example runs the following three commands during the build:
-#   1. ./myexec-1
-#   2. ls -l
-#   3. bin/myexec-2 foo bar
-#
-# Notes:
-#   - If BUILDPACK_RUN is unset, then './buildpack-run.sh' is used by default
-#   - All commands must be executable (i.e. the exec flag must be set)
-#   - If any command exits with a non-zero code, the build is aborted
-#
-# ---
-#
 # The 'compile' script is executed by the slug compiler with three arguments:
 #   $1: build_dir, location of your app directory on the build dyno
 #   $2: cache_dir, directory on the build dyno that persists between builds
