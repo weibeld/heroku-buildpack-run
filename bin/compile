@@ -51,7 +51,7 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
   shopt -s nullglob
   for f in "$ENV_DIR"/*; do
     if ! grep -qE "$skip" <<<$(basename "$f"); then
-      echo "export $(basename "$f")=\"$(cat "$f")\"" >>"$BUILDPACK_RUN_CONFIG"
+      echo "export $(basename "$f")=\$(cat "$f")" >>"$BUILDPACK_RUN_CONFIG"
     fi
   done
 fi
