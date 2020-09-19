@@ -43,8 +43,10 @@ cd "$BUILD_DIR"
 # env vars (skip those specified in BUILDPACK_RUN_LOAD_CONFIG_SKIP)
 BUILDPACK_RUN_CONFIG=$(mktemp)
 if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
+  echo "Config vars will be loaded as env vars" | arrow
   if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP" ]]; then
     skip="^($(tr ':' '|' <"$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))$"
+    echo "(except: $(cat "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))" | indent
   else
     skip='^()$'
   fi
