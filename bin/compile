@@ -55,7 +55,7 @@ else
 You must either create an executable script named buildpack-run.sh
 in the root directory of your app, or specify one or more commands
 to execute in the BUILDPACK_RUN config variable (colon-delimited).
-See https://github.com/weibeld/heroku-buildpack-run#configure
+See https://github.com/weibeld/heroku-buildpack-run#usage
 EOF
   exit 1
 fi
