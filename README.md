@@ -51,7 +51,7 @@ By default, the app's [config variables](https://devcenter.heroku.com/articles/c
 heroku config:set BUILDPACK_RUN_LOAD_CONFIG=1
 ```
 
-Now, all the app's config variables will be available as environment variables to your custom commands.
+Now, all the app's config variables will be available to your commands as environment variables.
 
 If you want to prevent certain config variables from being loaded as environment variables (for example, to prevent overwriting native environment variables), you can specify them in the `BUILDPACK_RUN_LOAD_CONFIG_SKIP` config variable (separated by colons):
 
@@ -63,7 +63,7 @@ In the above example, the config variables named `FOO`, `BAR`, and `BAZ` will _n
 
 ## Default environment variables
 
-The following special environment variables are always available to your custom commands:
+The following special environment variables are always available to your commands:
 
 - `BUILD_DIR`: your app's root directory in the build environment 
 - `CACHE_DIR`: directory that persists between builds and can be used as a cache
