@@ -4,68 +4,70 @@ Run custom commands during the build process.
 
 ## Description
 
-This buildpack allows to specify arbitrary commands that will be run in sequence during the build process.
+This buildpack allows specifying custom scripts or other commands that will be run during the build process. If any command exits with a non-zero status code, the build is aborted.
 
-If any command exits with a non-zero code, the build is aborted.
+## Usage
 
-## Enable
+### Using the `buildpack-run.sh` script
 
-Add the buildpack in addition to any other buildpacks:
-
-```bash
-heroku buildpacks:add https://github.com/weibeld/heroku-buildpack-run
-```
-
-Set the buildpack as the only buildpack:
+By default, the buildpack looks for a script named `buildpack-run.sh` in the root directory of your app. So, you can do the following:
 
 ```bash
-heroku buildpacks:set https://github.com/weibeld/heroku-buildpack-run
-```
-
-## Configure
-
-The commands to run are specified in the `BUILDPACK_RUN` [config variable](https://devcenter.heroku.com/articles/config-vars) by using colons as delimiters.
-
-A command can be anything from a user-provided shell script or binary to a native UNIX command. Commands may have arguments as well.
-
-**All commands must be executable. That means, shell scripts must have a shebang line (`#!/bin/bash` or similar) and must have the executable bit set (run `chmod +x script.sh` on your local machine, then commit and push as usual).**
-
-### Example
-
-```bash
-heroku config:set BUILDPACK_RUN='./script.sh:ls -l:bin/myexec foo bar'
+echo -e '#!/bin/bash\necho "Hello World"' >buildpack-run.sh
+chmod +x buildpack-run.sh
+git add buildpack-run.sh && git commit
 git push heroku master
 ```
 
-This causes the buildpack to run the following commands in sequence:
+The above example will print `Hello World` during the build.
 
-1. `./script.sh`
-2. `ls -l`
-3. `bin/myexec foo bar`
+### Using the `BUILDPACK_RUN` config variable
 
-Notes:
+Alternatively to using `buildpack-run.sh`, you can specify custom commands in the `BUILDPACK_RUN` config variable:
 
-- `./script.sh` is a user-provided shell script
-- `ls -l` refers to the native `ls` command on the build dyno
-- `bin/myexec` is a user-provided binary 
+```bash
+heroku config:set BUILDPACK_RUN='echo "Hello World"
+```
 
-### Default value
+The above example will print `Hello World` during the build.
 
-If the `BUILDPACK_RUN` config variable is unset, then `./buildpack-run.sh` is used as the default command.
+You can also specify multiple commands by separating them with colons:
 
-So, if you want to run only a shell script, you can name it `buildpack-run.sh` and omit setting the `BUILDPACK_RUN` config variable.
+```bash
+heroku config:set BUILDPACK_RUN='echo "Hello World":uname -a:./myscript.sh foo bar
+```
 
-_Don't forget to make the script executable by running `chmod +x buildpack-run.sh` on your local machine, then commit and push as usual._
+In the above example, the buildpack will execute the following commands in sequence:
 
-## Environment variables
+1. `echo "Hello World"`
+1. `uname -a`
+1. `./myscript.sh foo bar`
 
-The following special environment variables are available to your commands during the build:
+## Loading config variables
 
-- `BUILD_DIR`: absolute path of your app's root directory on the build dyno
-- `CACHE_DIR`: cache directory that persists between builds
-- `ENV_DIR`: directory containing the values of all config variables in files
+By default, the app's [config variables](https://devcenter.heroku.com/articles/config-vars) are only available as files in a specific directory in the build environment (see [`ENV_DIR`](#default-environment-variables) below). You can load all these config variables as environment variables by setting the `BUILDPACK_RUN_LOAD_CONFIG` config variable:
 
-`BUILD_DIR` corresponds to the working directory during the execution of the buildpack.
+```bash
+heroku config:set BUILDPACK_RUN_LOAD_CONFIG=1
+```
+
+Now, all the app's config variables will be available to your commands as environment variables.
+
+If you want to prevent certain config variables from being loaded as environment variables (for example, to prevent overwriting native environment variables), you can specify them in the `BUILDPACK_RUN_LOAD_CONFIG_SKIP` config variable (separated by colons):
+
+```bash
+heroku config:set BUILDPACK_RUN_LOAD_CONFIG_SKIP=FOO:BAR:BAZ
+```
+
+In the above example, the config variables named `FOO`, `BAR`, and `BAZ` will _not_ be loaded as environment variables. Note that this may be especially useful for config variables like `PATH` that you might _not_ want to overwrite in the build environment.
+
+## Default environment variables
+
+The following special environment variables are always available to your commands:
+
+- `BUILD_DIR`: your app's root directory in the build environment 
+- `CACHE_DIR`: directory that persists between builds and can be used as a cache
+- `ENV_DIR`: directory containing the app's config variables as files
 
 ## License
 
