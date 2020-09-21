@@ -64,10 +64,13 @@ IFS=':' BUILDPACK_RUN_COMMANDS=($BUILDPACK_RUN_COMMANDS)
 for BUILDPACK_RUN_CMD in ${BUILDPACK_RUN_COMMANDS[@]}; do
   echo "Running: $BUILDPACK_RUN_CMD" | arrow
   . "$BUILDPACK_RUN_CONFIG_FILE"
-  eval "$BUILDPACK_RUN_CMD"
-  BUILDPACK_RUN_CMD_EXIT_CODE=$?
-  if [[ "$BUILDPACK_RUN_CMD_EXIT_CODE" != 0 ]]; then
-    echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $BUILDPACK_RUN_CMD_EXIT_CODE" | arrow-err
+  eval "$BUILDPACK_RUN_CMD" || {
+    echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $?" | arrow-err
     exit 1
-  fi
+  }
+  #BUILDPACK_RUN_CMD_EXIT_CODE=$?
+  #if [[ "$BUILDPACK_RUN_CMD_EXIT_CODE" != 0 ]]; then
+  #  echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $BUILDPACK_RUN_CMD_EXIT_CODE" | arrow-err
+  #  exit 1
+  #fi
 done
