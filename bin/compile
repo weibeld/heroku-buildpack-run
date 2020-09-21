@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
 # The 'compile' script is executed by the slug compiler with three arguments:
-#   $1: build_dir, location of your app directory on the build dyno
-#   $2: cache_dir, directory on the build dyno that persists between builds
-#   $3: env_dir, directory holding all the app's config vars as files
+#
+# - $1: build_dir, location of your app directory on the build dyno
+# - $2: cache_dir, directory on the build dyno that persists between builds
+# - $3: env_dir, directory holding all the app's config vars as files
 #
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #------------------------------------------------------------------------------#
@@ -52,7 +53,7 @@ else
   echo "Error: can't apply buildpack" | arrow-err
   cat <<EOF | indent-err
 You must either create an executable script named buildpack-run.sh
-in the root directory of your app, or specify the commands you want
+in the root directory of your app, or specify one or more commands
 to execute in the BUILDPACK_RUN config variable (colon-delimited).
 See https://github.com/weibeld/heroku-buildpack-run#configure
 EOF
@@ -68,9 +69,4 @@ for BUILDPACK_RUN_CMD in ${BUILDPACK_RUN_COMMANDS[@]}; do
     echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $?" | arrow-err
     exit 1
   }
-  #BUILDPACK_RUN_CMD_EXIT_CODE=$?
-  #if [[ "$BUILDPACK_RUN_CMD_EXIT_CODE" != 0 ]]; then
-  #  echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $BUILDPACK_RUN_CMD_EXIT_CODE" | arrow-err
-  #  exit 1
-  #fi
 done
