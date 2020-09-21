@@ -8,34 +8,37 @@
 # More information here: https://devcenter.heroku.com/articles/buildpack-api
 #------------------------------------------------------------------------------#
 
-# Indent stdin
+# Indentation
 indent()     { sed 's/^/       /'; }
 arrow()      { sed 's/^/-----> /'; }
 indent-err() { sed "s/^/$(printf '\033')[31m       /;s/$/$(printf '\033')[0m/"; }
 arrow-err()  { sed "s/^/$(printf '\033')[31m-----> /;s/$/$(printf '\033')[0m/"; }
 
-# These environment variables can be accessed from the user-supplied commands
+# Default enviroment variables
 export BUILD_DIR=$1
 export CACHE_DIR=$2
 export ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
-# If BUILDPACK_RUN_LOAD_CONFIG is set, create file for loading config vars in
-# $ENV_DIR into env vars (skip those in BUILDPACK_RUN_LOAD_CONFIG_SKIP)
-BUILDPACK_RUN_CONFIG=$(mktemp)
+# If BUILDPACK_RUN_LOAD_CONFIG is set, create env vars for all of the app's
+# config vars (except thos specified in BUILDPACK_RUN_LOAD_CONFIG_SKIP). The
+# env vars are not created immediately, but the commands to create them are
+# written to a file, which is then sourced before the user-supplied commands
+# are executed (this is to prevent name clashes between the config vars and
+# env vars used by this script).
+BUILDPACK_RUN_CONFIG_FILE=$(mktemp)
 if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG" ]]; then
-  echo "Config vars will be available as env vars" | arrow
+  echo "Loading config vars into environment" | arrow
+  skip='^()$'
   if [[ -f "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP" ]]; then
     skip="^($(tr ':' '|' <"$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))$"
     echo "(except: $(cat "$ENV_DIR/BUILDPACK_RUN_LOAD_CONFIG_SKIP"))" | indent
-  else
-    skip='^()$'
   fi
   shopt -s nullglob
   for f in "$ENV_DIR"/*; do
     if ! grep -qE "$skip" <<<$(basename "$f"); then
-      echo "export $(basename "$f")=\$(cat "$f")" >>"$BUILDPACK_RUN_CONFIG"
+      echo "export $(basename "$f")=\$(cat "$f")" >>"$BUILDPACK_RUN_CONFIG_FILE"
     fi
   done
 fi
@@ -46,7 +49,7 @@ if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
 elif [[ -f buildpack-run.sh ]]; then
   BUILDPACK_RUN_COMMANDS=./buildpack-run.sh
 else
-  echo "Error: can't apply buildpack." | arrow-err
+  echo "Error: can't apply buildpack" | arrow-err
   cat <<EOF | indent-err
 You must either create an executable script named buildpack-run.sh
 in the root directory of your app, or specify the commands you want
@@ -60,11 +63,11 @@ IFS=':' BUILDPACK_RUN_COMMANDS=($BUILDPACK_RUN_COMMANDS)
 # Run commands
 for BUILDPACK_RUN_CMD in ${BUILDPACK_RUN_COMMANDS[@]}; do
   echo "Running: $BUILDPACK_RUN_CMD" | arrow
-  . "$BUILDPACK_RUN_CONFIG"
+  . "$BUILDPACK_RUN_CONFIG_FILE"
   eval "$BUILDPACK_RUN_CMD"
-  BUILDPACK_RUN_CMD_EXIT=$?
-  if [[ "$BUILDPACK_RUN_CMD_EXIT" != 0 ]]; then
-    echo "Aborting: $BUILDPACK_RUN_CMD exited with $BUILDPACK_RUN_CMD_EXIT" | arrow-err
+  BUILDPACK_RUN_CMD_EXIT_CODE=$?
+  if [[ "$BUILDPACK_RUN_CMD_EXIT_CODE" != 0 ]]; then
+    echo "Aborting: '$BUILDPACK_RUN_CMD' exited with exit code $BUILDPACK_RUN_CMD_EXIT_CODE" | arrow-err
     exit 1
   fi
 done
